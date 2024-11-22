@@ -2,7 +2,7 @@
   "name": "Push Notification Demo",
   "short_name": "PushDemo",
   "description": "Demo for Push Notifications",
-  "start_url": "/",
+  "start_url": "https://docwebs.github.io/notification-test/",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#000000",
