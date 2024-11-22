@@ -1,7 +1,7 @@
 {
   "name": "ToDo Pro",
   "short_name": "ToDoPro",
-  "start_url": "./",
+  "start_url": "https://docwebs.github.io/notification-test/",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#000000",
