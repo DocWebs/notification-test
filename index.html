@@ -15,7 +15,7 @@
         let isAppInstalled = false;
         let notificationsEnabled = false;
 
-        // Detect if the app is installed
+        // Detect if the app can be installed
         window.addEventListener('beforeinstallprompt', (e) => {
             e.preventDefault();
             deferredPrompt = e;
@@ -41,7 +41,7 @@
             }
         });
 
-        // Request notification permission and enable/disable notifications
+        // Request notification permission and toggle notifications
         document.querySelector('.toggle-notifications').addEventListener('click', () => {
             if (!isAppInstalled) {
                 alert('Please install the app to enable notifications.');
