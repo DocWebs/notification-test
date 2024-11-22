@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Push Notification Demo</title>
+
+    <!-- Link to the Web App Manifest -->
+    <link rel="manifest" href="manifest.json">
+</head>
+<body>
+    <h1>Push Notification Demo</h1>
+    <button class="toggle-notifications">Enable Notifications</button>
+
+    <script>
+        let notificationsEnabled = false;
+
+        // Check if the app is installed via the manifest
+        if (window.matchMedia('(display-mode: standalone)').matches) {
+            console.log('App is installed');
+        }
+
+        // Request notification permission and toggle notifications
+        document.querySelector('.toggle-notifications').addEventListener('click', () => {
+            if (window.matchMedia('(display-mode: standalone)').matches) {
+                // Check if the app is installed
+                Notification.requestPermission().then(permission => {
+                    if (permission === 'granted') {
+                        notificationsEnabled = true;
+                        console.log('Notifications enabled');
+                        alert('Notifications enabled');
+                    } else {
+                        alert('You need to grant permission to receive notifications.');
+                    }
+                });
+            } else {
+                alert('Please install the app first to enable notifications.');
+            }
+        });
+
+        // Register Service Worker for Background Notifications
+        if ('serviceWorker' in navigator && 'PushManager' in window) {
+            navigator.serviceWorker.register('sw.js').then(reg => {
+                console.log('Service Worker Registered');
+            }).catch(err => {
+                console.log('Service Worker Registration Failed: ', err);
+            });
+        }
+
+        // Send notification every 10 seconds if notifications are enabled
+        function sendNotification() {
+            if (notificationsEnabled && 'serviceWorker' in navigator) {
+                navigator.serviceWorker.ready.then(registration => {
+                    registration.showNotification("Background Notification", {
+                        body: "This is a test notification sent from the frontend!",
+                        icon: "https://via.placeholder.com/100", // Replace with your icon
+                        badge: "https://via.placeholder.com/50" // Optional
+                    });
+                });
+            }
+        }
+
+        // Send notification every 10 seconds if enabled
+        setInterval(sendNotification, 10000); // 10 seconds
+    </script>
+</body>
+</html>
