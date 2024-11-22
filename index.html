@@ -8,11 +8,65 @@
 <body>
     <h1>Push Notification Demo</h1>
     <button class="app">Install App</button>
+    <button class="toggle-notifications">Enable Notifications</button>
 
     <script>
-        // Check if the browser supports Service Workers and Push API
+        let deferredPrompt;
+        let isAppInstalled = false;
+        let notificationsEnabled = false;
+
+        // Detect if the app is installed
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            console.log('App can be installed');
+        });
+
+        // Install the app
+        document.querySelector('.app').addEventListener('click', () => {
+            if (deferredPrompt) {
+                deferredPrompt.prompt(); // Show the install prompt
+                deferredPrompt.userChoice.then((choiceResult) => {
+                    if (choiceResult.outcome === 'accepted') {
+                        isAppInstalled = true; // Mark app as installed
+                        console.log('App installed');
+                        alert('App added to your home screen!');
+                    } else {
+                        console.log('User dismissed the installation');
+                    }
+                    deferredPrompt = null;
+                });
+            } else {
+                alert('This feature is not available in your browser.');
+            }
+        });
+
+        // Request notification permission and enable/disable notifications
+        document.querySelector('.toggle-notifications').addEventListener('click', () => {
+            if (!isAppInstalled) {
+                alert('Please install the app to enable notifications.');
+                return;
+            }
+
+            if (notificationsEnabled) {
+                notificationsEnabled = false;
+                console.log('Notifications disabled');
+                alert('Notifications disabled');
+            } else {
+                Notification.requestPermission().then(permission => {
+                    if (permission === 'granted') {
+                        notificationsEnabled = true;
+                        console.log('Notifications enabled');
+                        alert('Notifications enabled');
+                    } else {
+                        alert('You need to grant permission to receive notifications.');
+                    }
+                });
+            }
+        });
+
+        // Register Service Worker
         if ('serviceWorker' in navigator && 'PushManager' in window) {
-            // Register Service Worker
             navigator.serviceWorker.register('sw.js').then(reg => {
                 console.log('Service Worker Registered');
             }).catch(err => {
@@ -22,18 +76,9 @@
             console.log("Service Worker or Push Notifications not supported.");
         }
 
-        // Function to ask for notification permission
-        Notification.requestPermission().then(permission => {
-            if (permission === "granted") {
-                console.log("Notification permission granted.");
-            } else {
-                console.log("Notification permission denied.");
-            }
-        });
-
-        // Function to send a test notification every 10 seconds
+        // Function to send a test notification every 10 seconds (if notifications enabled)
         function sendNotification() {
-            if ('serviceWorker' in navigator) {
+            if (notificationsEnabled && 'serviceWorker' in navigator) {
                 navigator.serviceWorker.ready.then(registration => {
                     registration.showNotification("Background Notification", {
                         body: "This is a test notification sent from the frontend!",
@@ -44,7 +89,7 @@
             }
         }
 
-        // Send a notification every 10 seconds
+        // Send notification every 10 seconds if enabled
         setInterval(sendNotification, 10000); // 10 seconds
     </script>
 </body>
